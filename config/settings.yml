@@ -1,0 +1,10 @@
+plugins:
+  discord_enabled:
+    client: true
+    default: false
+  discord_client_id:
+    client: false
+    default: ''
+  discord_secret:
+    client: false
+    default: ''

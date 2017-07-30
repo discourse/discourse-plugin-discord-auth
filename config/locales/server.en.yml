@@ -1,0 +1,5 @@
+en:
+  site_settings:
+    discord_enabled: 'Allow users to authenticate using Discord?'
+    discord_client_id: 'Discord Client ID (need one? visit <a href="https://discordapp.com/developers/applications/me">https://discordapp.com/developers/applications/me</a>)'
+    discord_secret: 'Discord Secret Key'
