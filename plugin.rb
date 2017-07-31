@@ -24,6 +24,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
 
   def register_middleware(omniauth)
     omniauth.provider :discord,
+                      scope: 'identify email',
                       setup: lambda { |env|
                         strategy = env['omniauth.strategy']
                         strategy.options[:client_id] = SiteSetting.discord_client_id
