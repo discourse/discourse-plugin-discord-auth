@@ -5,8 +5,7 @@
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
 require 'auth/oauth2_authenticator'
-
-gem 'omniauth-discord', '0.1.2'
+require_relative 'omniauth/discord'
 
 enabled_site_setting :discord_enabled
 
