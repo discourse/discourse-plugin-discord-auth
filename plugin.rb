@@ -1,11 +1,12 @@
 # name: discourse-plugin-discord-auth
 # about: Enable Login via Discord
-# version: 0.0.1
+# version: 0.0.2
 # authors: Jeff Wong
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
 require 'auth/oauth2_authenticator'
-require_relative 'omniauth/discord'
+
+gem 'omniauth-discord', '0.1.5'
 
 enabled_site_setting :discord_enabled
 
