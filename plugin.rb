@@ -21,6 +21,9 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     result = super
     data = auth_token[:info]
     result.extra_data[:avatar_url] = data[:image]
+    if (avatar_url = data[:image]).present?
+      retrieve_avatar(result.user, avatar_url)
+    end
     result
   end
 
