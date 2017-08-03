@@ -19,7 +19,17 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
 
   def after_authenticate(auth_token)
     result = super
+    data = auth_token[:info]
+    result.extra_data[:avatar_url] = data[:image]
     result
+  end
+
+  def after_create_account(user, auth)
+    super
+    data = auth[:extra_data]
+    if (avatar_url = data[:avatar_url]).present?
+      retrieve_avatar(user, avatar_url)
+    end
   end
 
   def register_middleware(omniauth)
@@ -30,6 +40,14 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
                         strategy.options[:client_id] = SiteSetting.discord_client_id
                         strategy.options[:client_secret] = SiteSetting.discord_secret
                       }
+  end
+
+  protected
+
+  def retrieve_avatar(user, avatar_url)
+    return unless user
+    return if user.user_avatar.try(:custom_upload_id).present?
+    Jobs.enqueue(:download_avatar_from_url, url: avatar_url, user_id: user.id, override_gravatar: false)
   end
 end
 
