@@ -21,17 +21,20 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   end
 
   def after_authenticate(auth_token)
-
     Rails.logger.warn "auth token: " + auth_token.credentials.token
-    guildsString = open(BASE_API_URL + '/users/@me/guilds',
-                     "Authorization" => "Bearer " + auth_token.credentials.token).read
-    guilds = JSON.parse guildsString
-    Rails.logger.warn "this is the guild info:" + guilds.to_yaml
     validGuild = false
-    for guild in guilds do
-      if SiteSetting.discord_guild == '' || guild['id'] == SiteSetting.discord_guild then
-        validGuild = true
-        break
+    if SiteSetting.discord_guild == ''
+      validGuild = true
+    else
+      guildsString = open(BASE_API_URL + '/users/@me/guilds',
+                     "Authorization" => "Bearer " + auth_token.credentials.token).read
+      guilds = JSON.parse guildsString
+      Rails.logger.warn "this is the guild info:" + guilds.to_yaml
+      for guild in guilds do
+        if guild['id'] == SiteSetting.discord_guild then
+          validGuild = true
+          break
+        end
       end
     end
     if !validGuild
@@ -53,6 +56,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   def after_create_account(user, auth)
     super
     if !user.approved && SiteSetting.discord_auto_approve
+      Rails.logger.warn "I'm auto approving!!!!"
       user.approve(-1,false)
     end
     data = auth[:extra_data]
@@ -62,8 +66,9 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   end
 
   def register_middleware(omniauth)
+    scope = SiteSetting.discord_guild == '' ? 'identify email' : 'identify email guilds'
     omniauth.provider :discord,
-                      scope: 'identify email guilds',
+                      scope: scope,
                       setup: lambda { |env|
                         strategy = env['omniauth.strategy']
                         strategy.options[:client_id] = SiteSetting.discord_client_id
