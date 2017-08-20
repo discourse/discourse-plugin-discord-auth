@@ -52,7 +52,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
 
   def after_create_account(user, auth)
     super
-    if !user.approved && siteSetting.discord_auto_approve
+    if !user.approved && SiteSetting.discord_auto_approve
       user.approve(-1,false)
     end
     data = auth[:extra_data]
