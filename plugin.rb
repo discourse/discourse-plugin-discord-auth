@@ -5,6 +5,8 @@
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
 require 'auth/oauth2_authenticator'
+require 'open-uri'
+require 'json'
 
 gem 'omniauth-discord', '0.1.5'
 
@@ -12,12 +14,34 @@ enabled_site_setting :discord_enabled
 
 class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   PLUGIN_NAME = 'oauth-discord'
+  BASE_API_URL = 'https://discordapp.com/api'
 
   def name
     'discord'
   end
 
   def after_authenticate(auth_token)
+
+    Rails.logger.warn "auth token: " + auth_token.credentials.token
+    guildsString = open(BASE_API_URL + '/users/@me/guilds',
+                     "Authorization" => "Bearer " + auth_token.credentials.token).read
+    guilds = JSON.parse guildsString
+    Rails.logger.warn "this is the guild info:" + guilds.to_yaml
+    validGuild = false
+    for guild in guilds do
+      if SiteSetting.discord_guild == '' || guild['id'] == SiteSetting.discord_guild then
+        validGuild = true
+        Rails.logger.warn "guild ID matches!!!! Log this sucker in!"
+        break
+      end
+    end
+    if !validGuild
+      result = Auth::Result.new
+      result.failed = true
+      result.failed_reason = "Discord user not a member of required guild"
+      return result
+    end
+
     result = super
     data = auth_token[:info]
     result.extra_data[:avatar_url] = data[:image]
@@ -37,7 +61,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
 
   def register_middleware(omniauth)
     omniauth.provider :discord,
-                      scope: 'identify email',
+                      scope: 'identify email guilds',
                       setup: lambda { |env|
                         strategy = env['omniauth.strategy']
                         strategy.options[:client_id] = SiteSetting.discord_client_id

@@ -8,3 +8,6 @@ plugins:
   discord_secret:
     client: false
     default: ''
+  discord_guild:
+    client: false
+    default: ''
