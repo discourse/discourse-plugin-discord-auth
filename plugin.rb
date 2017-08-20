@@ -31,7 +31,6 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     for guild in guilds do
       if SiteSetting.discord_guild == '' || guild['id'] == SiteSetting.discord_guild then
         validGuild = true
-        Rails.logger.warn "guild ID matches!!!! Log this sucker in!"
         break
       end
     end
