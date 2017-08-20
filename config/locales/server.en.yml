@@ -4,3 +4,4 @@ en:
     discord_client_id: 'Discord Client ID (need one? visit <a href="https://discordapp.com/developers/applications/me">https://discordapp.com/developers/applications/me</a>)'
     discord_secret: 'Discord Secret Key'
     discord_guild: 'Only allow logins from this discord guild ID.'
+    discord_auto_approve: 'auto-approve users authenticating via Discord.'
