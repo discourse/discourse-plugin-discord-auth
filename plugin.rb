@@ -22,7 +22,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
 
   def after_authenticate(auth_token)
     trustedGuild = false
-    if !SiteSetting.discord_trusted_guild == ''
+    if SiteSetting.discord_trusted_guild != ''
       guildsString = open(BASE_API_URL + '/users/@me/guilds',
                      "Authorization" => "Bearer " + auth_token.credentials.token).read
       guilds = JSON.parse guildsString
@@ -64,9 +64,8 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   end
 
   def register_middleware(omniauth)
-    scope = SiteSetting.discord_trusted_guild == '' ? 'identify email' : 'identify email guilds'
     omniauth.provider :discord,
-                      scope: scope,
+                      scope: 'identify email guilds',
                       setup: lambda { |env|
                         strategy = env['omniauth.strategy']
                         strategy.options[:client_id] = SiteSetting.discord_client_id
