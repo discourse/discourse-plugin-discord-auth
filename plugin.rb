@@ -21,31 +21,19 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   end
 
   def after_authenticate(auth_token)
-    Rails.logger.warn "auth token: " + auth_token.credentials.token
-    validGuild = false
-    if SiteSetting.discord_guild == ''
-      validGuild = true
-    else
+    trustedGuild = false
+    if !SiteSetting.discord_trusted_guild == ''
       guildsString = open(BASE_API_URL + '/users/@me/guilds',
                      "Authorization" => "Bearer " + auth_token.credentials.token).read
       guilds = JSON.parse guildsString
-      Rails.logger.warn "this is the guild info:" + guilds.to_yaml
       for guild in guilds do
-        if guild['id'] == SiteSetting.discord_guild then
-          validGuild = true
+        if guild['id'] == SiteSetting.discord_trusted_guild then
+          trustedGuild = true
           break
         end
       end
     end
-    if !validGuild
-      result = Auth::Result.new
-      result.failed = true
-      result.failed_reason = "Discord user not a member of required guild"
-      return result
-    end
-
-    if SiteSetting.discord_auto_approve && !User.find_by_email(auth_token.info.email)
-      Rails.logger.warn "I'm auto approving!!!!"
+    if trustedGuild && !User.find_by_email(auth_token.info.email)
       systemUser = User.find_by(id: -1)
       Invite.generate_invite_link(auth_token.info.email, systemUser)
     end
@@ -56,22 +44,27 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     if (avatar_url = data[:image]).present?
       retrieve_avatar(result.user, avatar_url)
     end
+    if trustedGuild
+      result.extra_data[:auto_approve] = true
+    else
+      result.extra_data[:auto_approve] = false
+    end
     result
   end
 
   def after_create_account(user, auth)
     super
-    if !user.approved && SiteSetting.discord_auto_approve
+    data = auth[:extra_data]
+    if !user.approved && data[:auto_approve]
       user.approve(-1,false)
     end
-    data = auth[:extra_data]
     if (avatar_url = data[:avatar_url]).present?
       retrieve_avatar(user, avatar_url)
     end
   end
 
   def register_middleware(omniauth)
-    scope = SiteSetting.discord_guild == '' ? 'identify email' : 'identify email guilds'
+    scope = SiteSetting.discord_trusted_guild == '' ? 'identify email' : 'identify email guilds'
     omniauth.provider :discord,
                       scope: scope,
                       setup: lambda { |env|

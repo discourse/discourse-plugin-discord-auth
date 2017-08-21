@@ -8,9 +8,6 @@ plugins:
   discord_secret:
     client: false
     default: ''
-  discord_guild:
+  discord_trusted_guild:
     client: false
     default: ''
-  discord_auto_approve:
-    client: false
-    default: false

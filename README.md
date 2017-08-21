@@ -23,6 +23,20 @@ Login Screen
 (replacing the https with http and example.com with your full qualified domain/subdomain)
 5. Update the plugin settings in the Admin > Settings area with the Client ID and Client Secret from step 3.
 
+## Authorize login from a single guild
+
+WARNING: THIS SITE SETTING WILL AUTO-APPROVE USERS! HANDLE WITH CARE!
+
+The `discord trusted guild` setting allows for automatic approving of users for a single guild. Its intent is to be used in conjunction with the `must approve users` setting.
+
+To configure this setting, find the guild id. This is a portion of the URL when you are in a chat channel.
+
+Discord URLs are of the form `https://discordapp.com/channels/{guild id}/{channel id}`. Enter the guild id value in the `discord guild` setting.
+
+EG, say you were logged in and viewing the `#general` channel of the desired server, which corresponds to the url `https://discordapp.com/channels/123/456`. You would copy/paste `123` into the `discord guild` plugin setting.
+
+Enabling this setting will ask for the user's guild list as an additional scope.
+
 ## Authors
 
 Jeff Wong
