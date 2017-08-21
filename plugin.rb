@@ -44,6 +44,12 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
       return result
     end
 
+    if SiteSetting.discord_auto_approve && !User.find_by_email(auth_token.info.email)
+      Rails.logger.warn "I'm auto approving!!!!"
+      systemUser = User.find_by(id: -1)
+      Invite.generate_invite_link(auth_token.info.email, systemUser)
+    end
+
     result = super
     data = auth_token[:info]
     result.extra_data[:avatar_url] = data[:image]
@@ -56,7 +62,6 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   def after_create_account(user, auth)
     super
     if !user.approved && SiteSetting.discord_auto_approve
-      Rails.logger.warn "I'm auto approving!!!!"
       user.approve(-1,false)
     end
     data = auth[:extra_data]
