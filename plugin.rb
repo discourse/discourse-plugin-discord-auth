@@ -101,7 +101,7 @@ register_css <<CSS
 
 .btn-social.discord::before {
   content: '';
-  background: url('/assets/images/discord-logo.png');
+  background: url('/images/discord-logo.png');
   display: inline-block;
   position: relative;
   height: 17px;
