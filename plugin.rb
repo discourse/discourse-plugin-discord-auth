@@ -1,6 +1,6 @@
 # name: discourse-plugin-discord-auth
 # about: Enable Login via Discord
-# version: 0.1.0
+# version: 0.1.1
 # authors: Jeff Wong
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
@@ -91,6 +91,7 @@ auth_provider :title => 'with Discord',
                                                           trusted: true,
                                                           auto_create_account: true)
 
+register_asset 'images/discord-logo.png'
 
 register_css <<CSS
 
