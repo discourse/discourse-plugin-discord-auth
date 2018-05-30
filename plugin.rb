@@ -29,7 +29,14 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
       for guild in guilds do
         if guild['id'] == SiteSetting.discord_trusted_guild then
           trustedGuild = true
+        result = super
+    data = auth_token[:info]
+    result.extra_data[:avatar_url] = data[:image]
+    if (avatar_url = data[:image]).present?
+      retrieve_avatar(result.user, avatar_url)
+    
           break
+      end
         end
       end
     end
@@ -78,7 +85,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   def retrieve_avatar(user, avatar_url)
     return unless user
     return if user.user_avatar.try(:custom_upload_id).present?
-    Jobs.enqueue(:download_avatar_from_url, url: avatar_url, user_id: user.id, override_gravatar: false)
+    Jobs.enqueue(:download_avatar_from_url, url: avatar_url, user_id: user.id, override_gravatar: true)
   end
 end
 
