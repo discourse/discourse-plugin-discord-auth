@@ -1,6 +1,6 @@
 # name: discourse-plugin-discord-auth
 # about: Enable Login via Discord
-# version: 0.1.2
+# version: 0.1.3
 # authors: Jeff Wong
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
