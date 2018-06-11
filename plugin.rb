@@ -8,7 +8,7 @@ require 'auth/oauth2_authenticator'
 require 'open-uri'
 require 'json'
 
-gem 'omniauth-discord', '0.1.5'
+gem 'omniauth-discord', '0.1.8'
 
 enabled_site_setting :discord_enabled
 
