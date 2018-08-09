@@ -20,6 +20,10 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     'discord'
   end
 
+  def enabled?
+    SiteSetting.discord_enabled?
+  end
+
   def after_authenticate(auth_token)
     trustedGuild = false
     if SiteSetting.discord_trusted_guild != ''
