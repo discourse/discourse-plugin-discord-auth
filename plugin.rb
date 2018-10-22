@@ -60,7 +60,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     super
     data = auth[:extra_data]
     if !user.approved && data[:auto_approve]
-      user.approve(-1,false)
+      user.approve(-1, false)
     end
     if (avatar_url = data[:avatar_url]).present?
       retrieve_avatar(user, avatar_url)
@@ -86,12 +86,12 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   end
 end
 
-auth_provider :title => 'with Discord',
+auth_provider title: 'with Discord',
               enabled_setting: "discord_enabled",
-              :message => 'Log in via Discord',
-              :frame_width => 920,
-              :frame_height => 800,
-              :authenticator => DiscordAuthenticator.new('discord',
+              message: 'Log in via Discord',
+              frame_width: 920,
+              frame_height: 800,
+              authenticator: DiscordAuthenticator.new('discord',
                                                           trusted: true,
                                                           auto_create_account: true)
 
