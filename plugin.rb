@@ -10,6 +10,8 @@ require 'json'
 
 gem 'omniauth-discord', '0.1.8'
 
+register_svg_icon "fab-discord" if respond_to?(:register_svg_icon)
+
 enabled_site_setting :discord_enabled
 
 class DiscordAuthenticator < ::Auth::OAuth2Authenticator
@@ -99,16 +101,6 @@ register_css <<CSS
 
 .btn-social.discord {
   background: #7289da;
-}
-
-.btn-social.discord::before {
-  content: '';
-  background: url('/plugins/discourse-plugin-discord-auth/images/discord-logo.png');
-  display: inline-block;
-  position: relative;
-  height: 17px;
-  width: 17px;
-  top: 3px;
 }
 
 CSS
