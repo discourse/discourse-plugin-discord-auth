@@ -2,3 +2,5 @@ auto_generated
 gems
 .idea
 *.iml
+
+.rubocop-https---raw-githubusercontent-com-discourse-discourse-master--rubocop-yml
