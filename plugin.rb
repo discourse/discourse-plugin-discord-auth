@@ -89,7 +89,6 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
 end
 
 auth_provider title: 'with Discord',
-              enabled_setting: "discord_enabled",
               message: 'Log in via Discord',
               frame_width: 920,
               frame_height: 800,
