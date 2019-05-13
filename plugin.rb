@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # name: discourse-plugin-discord-auth
 # about: Enable Login via Discord
 # version: 0.1.3
