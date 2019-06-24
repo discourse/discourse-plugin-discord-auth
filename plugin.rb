@@ -28,6 +28,17 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     SiteSetting.discord_enabled?
   end
 
+  def can_revoke?
+    true
+  end
+
+  def revoke(user, skip_remote: false)
+    info = Oauth2UserInfo.find_by(user_id: user.id, provider: name)
+    raise Discourse::NotFound if info.nil?
+    info.destroy!
+    true
+  end
+
   def after_authenticate(auth_token)
     trustedGuild = false
     if SiteSetting.discord_trusted_guild != ''
@@ -90,8 +101,7 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
   end
 end
 
-auth_provider title: 'with Discord',
-              message: 'Log in via Discord',
+auth_provider icon: 'fab-discord',
               frame_width: 920,
               frame_height: 800,
               authenticator: DiscordAuthenticator.new('discord',
