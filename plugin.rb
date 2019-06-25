@@ -35,7 +35,7 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
            strategy = env["omniauth.strategy"]
             strategy.options[:client_id] = SiteSetting.discord_client_id
             strategy.options[:client_secret] = SiteSetting.discord_secret
-            strategy.options[:info_fields] = 'avatar,discriminator,email,flag,id,locale,mfa_enabled,username,verified'
+            strategy.options[:info_fields] = 'email,username'
             strategy.options[:image_size] = { width: AVATAR_SIZE, height: AVATAR_SIZE }
             strategy.options[:secure_image_url] = true
          },
@@ -62,12 +62,7 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
 
     result = super
     data = auth_token[:info]
-    result.extra_data[:avatar_url] = data[:image]
-
-
-    if (avatar_url = data[:image]).present?
-      retrieve_avatar(result.user, avatar_url)
-    end
+    
     if trustedGuild
       result.extra_data[:auto_approve] = true
     else
