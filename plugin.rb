@@ -42,8 +42,11 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
          scope: 'identify email guilds'
   end
 
-  def after_authenticate(auth_token)
+  def after_create_account(user, auth)
+    super
+
     trustedGuild = false
+
     if SiteSetting.discord_trusted_guild != ''
       guildsString = open(BASE_API_URL + '/users/@me/guilds',
                      "Authorization" => "Bearer " + auth_token.credentials.token).read
@@ -55,21 +58,13 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
         end
       end
     end
-    if trustedGuild && !User.find_by_email(auth_token.info.email)
-      systemUser = User.find_by(id: -1)
-      Invite.generate_invite_link(auth_token.info.email, systemUser)
-    end
 
-    result = super
-    data = auth_token[:info]
-    
     if trustedGuild
-      result.extra_data[:auto_approve] = true
-    else
-      result.extra_data[:auto_approve] = false
+      systemUser = User.find_by(id: -1)
+      ReviewableUser.set_approved_fields!(user, systemUser)
     end
-    result
   end
+
 end
 
 auth_provider icon: 'fab-discord',
