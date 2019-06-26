@@ -57,11 +57,6 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
       end
     end
 
-    if trustedGuild && !User.find_by_email(auth_token.info.email)
-      systemUser = User.find_by(id: -1)
-      Invite.generate_invite_link(auth_token.info.email, systemUser)
-    end
-
     result = super
 
     if trustedGuild
@@ -74,13 +69,14 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
   end
 
   def after_create_account(user, auth)
-     super
+    super
 
-     data = auth[:extra_data]
-     if !user.approved && data[:auto_approve]
-       systemUser = User.find_by(id: -1)
-       ReviewableUser.set_approved_fields!(user, systemUser)
-     end
+    data = auth[:extra_data]
+    if !user.approved && data[:auto_approve]
+      user.approved = true
+      user.approved_by = Discourse.system_user
+      user.save!
+    end
   end
 end
 
