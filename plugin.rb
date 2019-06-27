@@ -70,12 +70,14 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
 
   def after_create_account(user, auth)
     super
-
+    
     data = auth[:extra_data]
     if !user.approved && data[:auto_approve]
       user.approved = true
       user.approved_by = Discourse.system_user
-      user.save!
+      if reviewable_user = ReviewableUser.find_by(target: user)
+          reviewable_user.set_approved_fields!(user, Discourse.system_user)
+      end
     end
   end
 end
