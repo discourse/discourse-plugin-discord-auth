@@ -1,0 +1,7 @@
+es:
+  js:
+    login:
+      discord:
+        name: "Discord"
+        title: "con Discord"
+        message: "Autenticando con Discord (asegúrese de que los bloqueadores de pop up no estén habilitados)"
