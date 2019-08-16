@@ -30,16 +30,16 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
   end
 
   def register_middleware(omniauth)
-  omniauth.provider :discord,
-         setup: lambda { |env|
-           strategy = env["omniauth.strategy"]
-            strategy.options[:client_id] = SiteSetting.discord_client_id
-            strategy.options[:client_secret] = SiteSetting.discord_secret
-            strategy.options[:info_fields] = 'email,username'
-            strategy.options[:image_size] = { width: AVATAR_SIZE, height: AVATAR_SIZE }
-            strategy.options[:secure_image_url] = true
-         },
-         scope: 'identify email guilds'
+    omniauth.provider :discord,
+           setup: lambda { |env|
+             strategy = env["omniauth.strategy"]
+              strategy.options[:client_id] = SiteSetting.discord_client_id
+              strategy.options[:client_secret] = SiteSetting.discord_secret
+              strategy.options[:info_fields] = 'email,username'
+              strategy.options[:image_size] = { width: AVATAR_SIZE, height: AVATAR_SIZE }
+              strategy.options[:secure_image_url] = true
+           },
+           scope: 'identify email guilds'
   end
 
   def after_authenticate(auth_token)
