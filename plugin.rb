@@ -75,7 +75,8 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     super
     data = auth[:extra_data]
     if !user.approved && data[:auto_approve]
-      user.approve(-1, false)
+      reviewable = ReviewableUser.find_by(target: user)
+      reviewable&.perform(Discourse.system_user, :approve_user, send_email: send_mail)
     end
     if (avatar_url = data[:avatar_url]).present?
       retrieve_avatar(user, avatar_url)
