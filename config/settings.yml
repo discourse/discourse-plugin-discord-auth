@@ -1,13 +1,10 @@
 plugins:
-  discord_enabled:
-    client: true
+  enable_discord_logins:
     default: false
   discord_client_id:
-    client: false
     default: ''
   discord_secret:
-    client: false
     default: ''
-  discord_trusted_guild:
-    client: false
+  discord_trusted_guilds:
     default: ''
+    type: list

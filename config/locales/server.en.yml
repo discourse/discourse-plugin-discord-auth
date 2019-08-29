@@ -1,6 +1,9 @@
 en:
   site_settings:
-    discord_enabled: 'Allow users to authenticate using Discord?'
+    enable_discord_logins: 'Allow users to authenticate using Discord?'
     discord_client_id: 'Discord Client ID (need one? visit <a href="https://discordapp.com/developers/applications/me">https://discordapp.com/developers/applications/me</a>)'
     discord_secret: 'Discord Secret Key'
-    discord_trusted_guild: 'Automatically approve users from this discord guild'
+    discord_trusted_guilds: 'Only allow members of these Discord guilds to login via Discord. Use the numeric ID for the guild. For more information, check the instructions <a href="https://meta.discourse.org/t/discord-oauth2-plugin/67174">here</a>. Leave blank to allow any guild.'
+  discord:
+    not_in_allowed_guild: 'Authentication failed. You are not a member of a permitted Discord guild.'
+    trusted_guild_change_warning: "Restricting Discord authentication to specific guilds has changed. You should probably disable 'must_approve_users' in your site settings. For more information <a href='https://meta.discourse.org/t/discord-oauth2-plugin/67174/62'>visit Discourse Meta</a>."

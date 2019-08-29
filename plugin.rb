@@ -8,7 +8,7 @@
 
 register_svg_icon "fab-discord" if respond_to?(:register_svg_icon)
 
-enabled_site_setting :discord_enabled
+enabled_site_setting :enable_discord_logins
 
 class OmniAuth::Strategies::Discord < OmniAuth::Strategies::OAuth2
   option :name, 'discord'
@@ -24,7 +24,6 @@ class OmniAuth::Strategies::Discord < OmniAuth::Strategies::OAuth2
   uid { raw_info['id'] }
 
   info do
-    puts raw_info
     {
       name: raw_info['username'],
       email: raw_info['verified'] ? raw_info['email'] : nil,
@@ -54,7 +53,7 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
   end
 
   def enabled?
-    SiteSetting.discord_enabled?
+    SiteSetting.enable_discord_logins?
   end
 
   def register_middleware(omniauth)
@@ -67,48 +66,25 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
     end
 
   def after_authenticate(auth_token, existing_account: nil)
-    trustedGuild = false
+    allowed_guild_ids = SiteSetting.discord_trusted_guilds.split("|")
 
-    if SiteSetting.discord_trusted_guild != ''
-      guilds = auth_token.extra[:raw_info][:guilds]
-      for guild in guilds do
-        if guild['id'] == SiteSetting.discord_trusted_guild then
-          trustedGuild = true
-          break
+    if allowed_guild_ids.length > 0
+      user_guild_ids = auth_token.extra[:raw_info][:guilds].map { |g| g['id'] }
+      if (user_guild_ids & allowed_guild_ids).empty? # User is not in any allowed guilds
+        return Auth::Result.new.tap do |auth_result|
+          auth_result.failed = true
+          auth_result.failed_reason = I18n.t("discord.not_in_allowed_guild")
         end
       end
     end
 
-    result = super
-
-    if trustedGuild
-      result.extra_data[:auto_approve] = true
-    else
-      result.extra_data[:auto_approve] = false
-    end
-
-    result
-  end
-
-  def after_create_account(user, auth)
     super
-
-    data = auth[:extra_data]
-    if !user.approved && data[:auto_approve]
-      user.approved = true
-      user.approved_by_id = Discourse.system_user.id
-      user.save!
-      if reviewable = ::ReviewableUser.pending.find_by(target: user)
-        reviewable.perform(:approve, Discourse.system_user)
-      end
-    end
   end
 end
 
 auth_provider icon: 'fab-discord',
-              frame_width: 920,
-              frame_height: 800,
-              authenticator: DiscordAuthenticator.new
+              authenticator: DiscordAuthenticator.new,
+              full_screen_login: true
 
 register_css <<CSS
 
@@ -117,3 +93,11 @@ register_css <<CSS
 }
 
 CSS
+
+after_initialize do
+  AdminDashboardData.add_problem_check do
+    if SiteSetting.discord_trusted_guilds.present? && SiteSetting.must_approve_users
+      I18n.t("discord.trusted_guild_change_warning")
+    end
+  end
+end
