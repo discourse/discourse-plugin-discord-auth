@@ -1,7 +1,7 @@
 en:
   site_settings:
     enable_discord_logins: 'Allow users to authenticate using Discord?'
-    discord_client_id: 'Discord Client ID (need one? visit <a href="https://discordapp.com/developers/applications/me">https://discordapp.com/developers/applications/me</a>)'
+    discord_client_id: 'Discord Client ID (need one? visit <a href="https://discordapp.com/developers/applications/me">the Discord developer portal</a>)'
     discord_secret: 'Discord Secret Key'
     discord_trusted_guilds: 'Only allow members of these Discord guilds to login via Discord. Use the numeric ID for the guild. For more information, check the instructions <a href="https://meta.discourse.org/t/discord-oauth2-plugin/67174">here</a>. Leave blank to allow any guild.'
   discord:
