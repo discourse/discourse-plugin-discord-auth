@@ -5,6 +5,7 @@ plugins:
     default: ''
   discord_secret:
     default: ''
+    secret: true
   discord_trusted_guilds:
     default: ''
     type: list
