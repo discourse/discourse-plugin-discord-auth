@@ -39,7 +39,7 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
            scope: 'identify email guilds'
   end
 
-  def after_authenticate(auth_token)
+  def after_authenticate(auth_token, existing_account: nil)
     trustedGuild = false
 
     if SiteSetting.discord_trusted_guild != ''
