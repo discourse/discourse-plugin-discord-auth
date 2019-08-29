@@ -6,21 +6,49 @@
 # authors: Jeff Wong, Robert Barrow
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
-require 'auth/oauth2_authenticator'
-require 'open-uri'
-require 'json'
-
-gem 'omniauth-discord', '0.1.8'
-
 register_svg_icon "fab-discord" if respond_to?(:register_svg_icon)
 
 enabled_site_setting :discord_enabled
 
-class DiscordAuthenticator < ::Auth::ManagedAuthenticator
-  PLUGIN_NAME = 'oauth-discord'
-  BASE_API_URL = 'https://discordapp.com/api'
-  AVATAR_SIZE ||= 480
+class OmniAuth::Strategies::Discord < OmniAuth::Strategies::OAuth2
+  option :name, 'discord'
+  option :scope, 'identify email guilds'
 
+  option :client_options,
+          site: 'https://discordapp.com/api',
+          authorize_url: 'oauth2/authorize',
+          token_url: 'oauth2/token'
+
+  option :authorize_options, %i[scope permissions]
+
+  uid { raw_info['id'] }
+
+  info do
+    puts raw_info
+    {
+      name: raw_info['username'],
+      email: raw_info['verified'] ? raw_info['email'] : nil,
+      image: "https://cdn.discordapp.com/avatars/#{raw_info['id']}/#{raw_info['avatar']}"
+    }
+  end
+
+  extra do
+    {
+      'raw_info' => raw_info
+    }
+  end
+
+  def raw_info
+    @raw_info ||= access_token.get('users/@me').parsed.
+      merge(guilds: access_token.get('users/@me/guilds').parsed)
+  end
+
+  def callback_url
+    full_host + script_name + callback_path
+  end
+end
+
+class DiscordAuthenticator < ::Auth::ManagedAuthenticator
   def name
     'discord'
   end
@@ -35,17 +63,14 @@ class DiscordAuthenticator < ::Auth::ManagedAuthenticator
              strategy = env["omniauth.strategy"]
               strategy.options[:client_id] = SiteSetting.discord_client_id
               strategy.options[:client_secret] = SiteSetting.discord_secret
-           },
-           scope: 'identify email guilds'
-  end
+           }
+    end
 
   def after_authenticate(auth_token, existing_account: nil)
     trustedGuild = false
 
     if SiteSetting.discord_trusted_guild != ''
-      guildsString = open(BASE_API_URL + '/users/@me/guilds',
-                     "Authorization" => "Bearer " + auth_token.credentials.token).read
-      guilds = JSON.parse guildsString
+      guilds = auth_token.extra[:raw_info][:guilds]
       for guild in guilds do
         if guild['id'] == SiteSetting.discord_trusted_guild then
           trustedGuild = true
