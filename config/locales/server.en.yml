@@ -7,3 +7,4 @@ en:
   discord:
     not_in_allowed_guild: 'Authentication failed. You are not a member of a permitted Discord guild.'
     trusted_guild_change_warning: "Restricting Discord authentication to specific guilds has changed. You should probably disable 'must_approve_users' in your site settings. For more information <a href='https://meta.discourse.org/t/discord-oauth2-plugin/67174/62'>visit Discourse Meta</a>."
+    remove_plugin_message: "Discord authentication is now a core Discourse feature. You should remove the 'discourse-plugin-discord-auth' line from your app.yml file. For more information <a href='https://meta.discourse.org/t/discord-oauth2-plugin/67174/63'>visit Discourse Meta</a>."
