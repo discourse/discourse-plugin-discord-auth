@@ -3,7 +3,7 @@
 # name: discourse-plugin-discord-auth
 # about: Enable Login via Discord
 # version: 0.1.3
-# authors: Jeff Wong
+# authors: Jeff Wong, Robert Barrow
 # url: https://github.com/featheredtoast/discourse-plugin-discord-auth
 
 require 'auth/oauth2_authenticator'
@@ -16,9 +16,10 @@ register_svg_icon "fab-discord" if respond_to?(:register_svg_icon)
 
 enabled_site_setting :discord_enabled
 
-class DiscordAuthenticator < ::Auth::OAuth2Authenticator
+class DiscordAuthenticator < ::Auth::ManagedAuthenticator
   PLUGIN_NAME = 'oauth-discord'
   BASE_API_URL = 'https://discordapp.com/api'
+  AVATAR_SIZE ||= 480
 
   def name
     'discord'
@@ -28,19 +29,22 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
     SiteSetting.discord_enabled?
   end
 
-  def can_revoke?
-    true
-  end
-
-  def revoke(user, skip_remote: false)
-    info = Oauth2UserInfo.find_by(user_id: user.id, provider: name)
-    raise Discourse::NotFound if info.nil?
-    info.destroy!
-    true
+  def register_middleware(omniauth)
+    omniauth.provider :discord,
+           setup: lambda { |env|
+             strategy = env["omniauth.strategy"]
+              strategy.options[:client_id] = SiteSetting.discord_client_id
+              strategy.options[:client_secret] = SiteSetting.discord_secret
+              strategy.options[:info_fields] = 'email,username'
+              strategy.options[:image_size] = { width: AVATAR_SIZE, height: AVATAR_SIZE }
+              strategy.options[:secure_image_url] = true
+           },
+           scope: 'identify email guilds'
   end
 
   def after_authenticate(auth_token)
     trustedGuild = false
+
     if SiteSetting.discord_trusted_guild != ''
       guildsString = open(BASE_API_URL + '/users/@me/guilds',
                      "Authorization" => "Bearer " + auth_token.credentials.token).read
@@ -52,62 +56,37 @@ class DiscordAuthenticator < ::Auth::OAuth2Authenticator
         end
       end
     end
-    if trustedGuild && !User.find_by_email(auth_token.info.email)
-      systemUser = User.find_by(id: -1)
-      Invite.generate_invite_link(auth_token.info.email, systemUser)
-    end
 
     result = super
-    data = auth_token[:info]
-    result.extra_data[:avatar_url] = data[:image]
-    if (avatar_url = data[:image]).present?
-      retrieve_avatar(result.user, avatar_url)
-    end
+
     if trustedGuild
       result.extra_data[:auto_approve] = true
     else
       result.extra_data[:auto_approve] = false
     end
+
     result
   end
 
   def after_create_account(user, auth)
     super
+
     data = auth[:extra_data]
     if !user.approved && data[:auto_approve]
-      reviewable = ReviewableUser.find_by(target: user)
-      reviewable&.perform(Discourse.system_user, :approve_user, send_email: false)
+      user.approved = true
+      user.approved_by_id = Discourse.system_user.id
+      user.save!
+      if reviewable = ::ReviewableUser.pending.find_by(target: user)
+        reviewable.perform(:approve, Discourse.system_user)
+      end
     end
-    if (avatar_url = data[:avatar_url]).present?
-      retrieve_avatar(user, avatar_url)
-    end
-  end
-
-  def register_middleware(omniauth)
-    omniauth.provider :discord,
-                      scope: 'identify email guilds',
-                      setup: lambda { |env|
-                        strategy = env['omniauth.strategy']
-                        strategy.options[:client_id] = SiteSetting.discord_client_id
-                        strategy.options[:client_secret] = SiteSetting.discord_secret
-                      }
-  end
-
-  protected
-
-  def retrieve_avatar(user, avatar_url)
-    return unless user
-    return if user.user_avatar.try(:custom_upload_id).present?
-    Jobs.enqueue(:download_avatar_from_url, url: avatar_url, user_id: user.id, override_gravatar: false)
   end
 end
 
 auth_provider icon: 'fab-discord',
               frame_width: 920,
               frame_height: 800,
-              authenticator: DiscordAuthenticator.new('discord',
-                                                          trusted: true,
-                                                          auto_create_account: true)
+              authenticator: DiscordAuthenticator.new
 
 register_css <<CSS
 
