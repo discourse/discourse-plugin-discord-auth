@@ -1,0 +1,6 @@
+es:
+  site_settings:
+    discord_enabled: '¿Permitir a los usuarios autenticarse usando Discord?'
+    discord_client_id: 'Discord Client ID (¿necesitas una? visita <a href="https://discordapp.com/developers/applications/me">https://discordapp.com/developers/applications/me</a>)'
+    discord_secret: 'Discord Secret Key'
+    discord_trusted_guild: 'Aprobar automáticamente a los usuarios de este discord guild'
