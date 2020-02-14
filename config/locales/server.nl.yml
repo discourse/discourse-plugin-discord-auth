@@ -1,0 +1,10 @@
+en:
+  site_settings:
+    enable_discord_logins: 'Sta toe dat gebruikers inloggen met Discord?'
+    discord_client_id: 'Discord Client ID (Heb je er eenje nodig? Bezoek het <a href="https://discordapp.com/developers/applications/me">Discord-ontwikkelaarportaal</a>.)'
+    discord_secret: 'Discord-sleutel (secret key)'
+    discord_trusted_guilds: 'Sta alleen leden uit deze Discord-servers toe om in te loggen met Discord. Gebruik de numerieke ID van de server. Voor meer informatie, zie de instructies <a href="https://meta.discourse.org/t/discord-oauth2-plugin/67174">hier</a>. Laat leeg om leden van iedere server toe te laten.'
+  discord:
+    not_in_allowed_guild: 'Inloggen mislukt: je bent geen lid van een toegelaten Discord-server.'
+    trusted_guild_change_warning: "Het enkel leden van specifieke Discord-servers laten inloggen is veranderd. Het is verstandig om 'must_approve_users' in de instellingen van je site uit te schakelen. Bezoek de <a href='https://meta.discourse.org/t/discord-oauth2-plugin/67174/62'>Discourse Meta</a> voor meer informatie."
+    remove_plugin_message: "Inloggen met Discord is nu een basisfunctie van Discourse. Het is verstandig om de 'discourse-plugin-discord-auth' regel in je app.yml-bestand te verwijderen. Bezoek de <a href='https://meta.discourse.org/t/discord-oauth2-plugin/67174/63'>Discourse Meta</a> voor meer informatie."
