@@ -1,4 +1,4 @@
-en:
+nl:
   site_settings:
     enable_discord_logins: 'Sta toe dat gebruikers inloggen met Discord?'
     discord_client_id: 'Discord Client ID (Heb je er eenje nodig? Bezoek het <a href="https://discordapp.com/developers/applications/me">Discord-ontwikkelaarportaal</a>.)'
