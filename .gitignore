@@ -1,4 +1,1 @@
-auto_generated
-gems
-.idea
-*.iml
+node_modules
